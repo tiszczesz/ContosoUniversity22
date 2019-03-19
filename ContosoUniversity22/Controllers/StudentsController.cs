@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using ContosoUniversity22.Data;
 using ContosoUniversity22.Models;
+using ContosoUniversity22.Tools;
 
 namespace ContosoUniversity22.Controllers {
     public class StudentsController : Controller {
@@ -17,10 +18,24 @@ namespace ContosoUniversity22.Controllers {
         }
 
         // GET: Students
-        public async Task<IActionResult> Index(string sortOrder) {
+        public async Task<IActionResult> Index(string sortOrder, string currentFilter,string searchString, int? page) {
             ViewData["NameSortParam"] = String.IsNullOrEmpty(sortOrder) ? "name_desc" : "";
             ViewData["DateSortParam"] = sortOrder == "Date" ? "date_desc" : "Date";
+            ViewData["CurrentSort"] = sortOrder;
+            if (searchString != null) {
+                page = 1;
+            }
+            else {
+                searchString = currentFilter;
+            }
+
+            ViewData["CurrentFilter"] = searchString;
             var students = from s in _context.Students select s;
+            if (!String.IsNullOrEmpty(searchString)) {
+                students = students.Where(s => s.LastName.Contains(searchString)
+                                               || s.FirstMidName.Contains(searchString));
+            }
+
             switch (sortOrder) {
                 case "name_desc":
                     students = students.OrderByDescending(s => s.LastName);
@@ -35,7 +50,9 @@ namespace ContosoUniversity22.Controllers {
                     students = students.OrderBy(s => s.LastName);
                     break;
             }
-            return View(await students.AsNoTracking().ToListAsync());
+
+            int pageSize = 3;
+            return View(await PaginatedList<Student>.CreateAsync(students.AsNoTracking(),page ?? 1,pageSize));
         }
 
         // GET: Students/Details/5
