@@ -27,12 +27,12 @@ namespace ContosoUniversity22.Controllers
             viewModel.Instructors =await  _context.Instructors
                 .Include(i => i.OfficeAssignment)
                 .Include(i => i.CourseAssignments)
-                .ThenInclude(i => i.Course)
-                .ThenInclude(i => i.Enrollments)
-                .ThenInclude(i => i.Student)
+                    .ThenInclude(i => i.Course)
+                        .ThenInclude(i => i.Enrollments)
+                            .ThenInclude(i => i.Student)
                 .Include(i => i.CourseAssignments)
-                .ThenInclude(i => i.Course)
-                .ThenInclude(i => i.Department)
+                    .ThenInclude(i => i.Course)
+                        .ThenInclude(i => i.Department)
                 .AsNoTracking()
                 .OrderBy(i => i.LastName).ToListAsync();
 
@@ -47,7 +47,7 @@ namespace ContosoUniversity22.Controllers
                 viewModel.Enrollments = viewModel.Courses
                     .Where(x => x.CourseID == courseID).Single().Enrollments;
             }
-            return View(await _context.Instructors.ToListAsync());
+            return View(viewModel);
         }
 
         // GET: Instructors/Details/5
