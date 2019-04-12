@@ -83,7 +83,7 @@
             string selectedRow = "";
             if (item.CourseID == (int?)ViewData["CourseID"])
             {
-                selectedRow = "bg-light";
+                selectedRow = "bg-secondary text-light";
             }
             <tr class="@selectedRow">
                 <td>@Html.ActionLink("Select", "Index", new { courseID = item.CourseID })</td>
